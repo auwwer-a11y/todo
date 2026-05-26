@@ -84,3 +84,18 @@ func (s *TaskService) Update(ctx context.Context, userID string, taskID string, 
 	}
 	return task, nil
 }
+
+func (s *TaskService) Delete(ctx context.Context, userID string, taskID string) error {
+	task, err := s.GetByID(ctx, userID, taskID)
+	if err != nil {
+		return err
+	}
+
+	if err := s.taskRepo.Delete(ctx, taskID); err != nil {
+		return err
+	}
+
+	s.eventPublisher.Publish(ctx, "task_deleted", task)
+
+	return nil
+}
