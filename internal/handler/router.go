@@ -5,6 +5,9 @@ import (
 	"log/slog"
 	"github.com/auwwer-a11y/todo/internal/service"
 	"net/http"
+	"context"
+	"strings"
+	"github.com/auwwer-a11y/todo/pkg/jwt"
 )
 
 type Router struct {
@@ -12,14 +15,16 @@ type Router struct {
 	taskService *service.TaskService
 	noteService *service.NoteService
 	logger      *slog.Logger
+	jwtSecret   string
 }
 
-func NewRouter(userService *service.UserService, taskService *service.TaskService, noteService *service.NoteService, logger *slog.Logger) http.Handler {
+func NewRouter(userService *service.UserService, taskService *service.TaskService, noteService *service.NoteService, logger *slog.Logger, jwtSecret string) http.Handler {
 	h := &Router{
 		userService: userService,
 		taskService: taskService,
 		noteService: noteService,
 		logger: logger,
+		jwtSecret: jwtSecret,
 	}
 
 	r := chi.NewRouter()
@@ -43,5 +48,24 @@ func NewRouter(userService *service.UserService, taskService *service.TaskServic
 	})
 
 	return r
+}
+
+func (h *Router) authMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		authHeader := r.Header.Get("Authorization")
+		if authHeader == "" {
+    		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+    		return
+		}
+		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
+		userID, err := jwt.Validate(tokenString, h.jwtSecret)
+		if err != nil {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+		ctx := r.Context()
+		ctx = context.WithValue(ctx, "userID", userID)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
 }
 
