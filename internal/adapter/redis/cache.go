@@ -14,8 +14,8 @@ func NewCache(client *redis.Client) *Cache {
 	return &Cache{client: client}
 }
 
-func (c *Cache) Set(ctx context.Context, key string, value string) error {
-	return c.client.Set(ctx, key, value, 0).Err()
+func (c *Cache) Set(ctx context.Context, key string, value string, ttl time.Duration) error {
+	return c.client.Set(ctx, key, value, ttl).Err()
 }
 
 func (c *Cache) Get(ctx context.Context, key string) (string, error) {
