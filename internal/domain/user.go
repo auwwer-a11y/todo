@@ -6,11 +6,11 @@ import (
 )
 
 type User struct {
-	ID 	 string `json:"id"`
-	Name string `json:"name"`
-	Email string `json:"email"`
-	PasswordHash string `json:"password_hash"`
-	CreatedAt time.Time `json:"created_at"`
+	ID 	 string `json:"id" db:"id"`
+	Name string `json:"name" db:"name"`
+	Email string `json:"email" db:"email"`
+	PasswordHash string `json:"password_hash" db:"password_hash"`
+	CreatedAt time.Time `json:"created_at" db:"created_at"`
 }
 
 var ErrUserNotFound = errors.New("user not found")

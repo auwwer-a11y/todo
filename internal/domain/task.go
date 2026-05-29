@@ -14,14 +14,14 @@ const (
 )
 
 type Task struct {
-	ID string `json:"id"`
-	UserID string `json:"user_id"`
-	Title string `json:"title"`
-	Description string `json:"description"`
-	Status TaskStatus `json:"status"`
-	Deadline *time.Time `json:"deadline"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID string `json:"id" db:"id"`
+	UserID string `json:"user_id" db:"user_id"`
+	Title string `json:"title" db:"title"`
+	Description string `json:"description" db:"description"`
+	Status TaskStatus `json:"status" db:"status"`
+	Deadline *time.Time `json:"deadline" db:"deadline"`
+	CreatedAt time.Time `json:"created_at" db:"created_at"`
+	UpdatedAt time.Time `json:"updated_at" db:"updated_at"`
 }
 
 var ErrTaskNotFound = errors.New("task not found")
