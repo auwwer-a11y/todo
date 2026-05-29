@@ -28,7 +28,7 @@ func (p *KafkaProducer) Publish(ctx context.Context, eventType string, payload i
 	
 	message := kafka.Message{
 		Key:  []byte(eventType),
-		Value: []byte(payload),
+		Value: data,
 	}
 	return p.writer.WriteMessages(ctx, message)
 }
