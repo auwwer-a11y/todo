@@ -79,7 +79,7 @@ func LoadConfig() (*Config, error) {
 			DB: 0, // Default Redis DB
 		},
 		Kafka: KafkaConfig{
-			Brokers: []string{os.Getenv("KAFKA_BROKER")},
+			Brokers: []string{os.Getenv("KAFKA_BROKERS")},
 			Topic: os.Getenv("KAFKA_TOPIC"),
 		},
 	}

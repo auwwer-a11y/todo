@@ -40,7 +40,9 @@ func (s *TaskService) Create(ctx context.Context, userID string, title string, d
 		return nil, err
 	}
 
-	s.eventPublisher.Publish(ctx, "task_created", task)
+	if err := s.eventPublisher.Publish(ctx, "task.created", task); err != nil {
+    s.logger.Error("Failed to publish event", "error", err)
+	}
 	return task, nil
 }
 
@@ -80,7 +82,9 @@ func (s *TaskService) Update(ctx context.Context, userID string, taskID string, 
 	}
 	
 	if oldStatus != status {
-		s.eventPublisher.Publish(ctx, "task.status_changed", task)
+    if err := s.eventPublisher.Publish(ctx, "task.status_changed", task); err != nil {
+        s.logger.Error("Failed to publish event", "error", err)
+    	}
 	}
 	return task, nil
 }
@@ -95,7 +99,9 @@ func (s *TaskService) Delete(ctx context.Context, userID string, taskID string) 
 		return err
 	}
 
-	s.eventPublisher.Publish(ctx, "task_deleted", task)
+	if err := s.eventPublisher.Publish(ctx, "task.deleted", task); err != nil {
+    	s.logger.Error("Failed to publish event", "error", err)
+	}
 
 	return nil
 }
