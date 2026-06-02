@@ -47,7 +47,12 @@ func (s *UserService) Register(ctx context.Context, name string, email string, p
 		PasswordHash: string(hashedPassword),
 		CreatedAt: time.Now(),
 	}
-	return s.userRepo.Create(ctx, user)
+	
+	if err := s.userRepo.Create(ctx, user); err != nil {
+		return nil, err
+	}
+
+	return user, nil
 }
 
 func (s *UserService) Login(ctx context.Context, email string, password string) (string, error) {

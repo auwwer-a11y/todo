@@ -7,9 +7,9 @@ import (
 	mongodriver "go.mongodb.org/mongo-driver/mongo"
 	"github.com/redis/go-redis/v9"
 	"github.com/jmoiron/sqlx"
-	"github.com/auwwer-a11y/todo/internal/config"
+	"github.com/auwwer-a11y/todo/pkg/config"
+	"github.com/auwwer-a11y/todo/pkg/logger"
 	"github.com/auwwer-a11y/todo/internal/adapter/postgres"
-	"github.com/auwwer-a11y/todo/internal/logger"
 	"github.com/auwwer-a11y/todo/internal/service"
 	"fmt"
 	redisadapter "github.com/auwwer-a11y/todo/internal/adapter/redis"
@@ -59,8 +59,8 @@ func main() {
 	cacheRepo := redisadapter.NewCache(redisClient)
 
 	// Initialize services
-	kafkaProducer := brokeradapter.NewKafkaProducer([]string{cfg.Kafka.Brokers}, cfg.Kafka.Topic)
-	ttl, _ := time.ParseDuration(cfg.App.JWTTTL)
+	kafkaProducer := brokeradapter.NewKafkaProducer(cfg.Kafka.Brokers, cfg.Kafka.Topic)
+	ttl, _ := time.ParseDuration(cfg.App.JWTTL)
 	userService := service.NewUserService(userRepo, cacheRepo, log, cfg.App.JWTSecret, ttl)
 	taskService := service.NewTaskService(taskRepo, noteRepo, kafkaProducer, log)
 	noteService := service.NewNoteService(noteRepo, taskRepo, log)
@@ -75,7 +75,7 @@ func main() {
 	}
 
 	go func() {
-		log.info("Starting server", "port", cfg.App.Port)
+		log.Info("Starting server", "port", cfg.App.Port)
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Error("Server error", "error", err)
 		}
@@ -85,7 +85,7 @@ func main() {
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 
-	log.info("Shutting down server...")
+	log.Info("Shutting down server...")
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	srv.Shutdown(ctx)
