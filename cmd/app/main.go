@@ -1,6 +1,7 @@
 package main
 
 import (
+	_ "github.com/lib/pq"
 	"context"
 	mongoadapter "github.com/auwwer-a11y/todo/internal/adapter/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
