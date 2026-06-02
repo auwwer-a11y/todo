@@ -9,7 +9,7 @@ CREATE TABLE tasks (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     status TEXT NOT NULL DEFAULT 'pending',
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-)
+);
 
 -- +goose Down
 DROP TABLE IF EXISTS tasks;
