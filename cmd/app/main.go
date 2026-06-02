@@ -17,6 +17,9 @@ import (
 	"net/http"
 	"time"
 	"github.com/auwwer-a11y/todo/internal/handler"
+	"os"
+	"os/signal"
+	"syscall"
 )
 
 func main() {
@@ -71,8 +74,23 @@ func main() {
 		Handler: router,
 	}
 
-	log.Info("Starting server", "port", cfg.App.Port)
-	if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-		log.Error("Server error", "error", err)
-	}
+	go func() {
+		log.info("Starting server", "port", cfg.App.Port)
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Error("Server error", "error", err)
+		}
+	}()
+
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+
+	log.info("Shutting down server...")
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	srv.Shutdown(ctx)
+
+	pgClient.Close()
+	mongoClient.Disconnect(context.Background())
+	redisClient.Close()
 }

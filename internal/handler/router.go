@@ -32,6 +32,9 @@ func NewRouter(userService *service.UserService, taskService *service.TaskServic
 	r.Post("/api/register", h.handleRegister)
 	r.Post("/api/login", h.handleLogin)
 
+	r.Get("/healthz", h.handleHealthz)
+	r.Get("/readyz", h.handleReadyz)
+
 	r.Group(func(r chi.Router) {
 		r.Use(h.authMiddleware)
 
@@ -46,7 +49,7 @@ func NewRouter(userService *service.UserService, taskService *service.TaskServic
 		r.Post("/api/tasks/{id}/notes", h.handleCreateNote)
 		r.Delete("/api/notes/{id}", h.handleDeleteNote)
 	})
-
+	
 	return r
 }
 

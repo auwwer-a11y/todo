@@ -42,19 +42,6 @@ func (h *Router) handleCreateTask(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(resp)
 }
 
-func (h *Router) handleGetTasks(w http.ResponseWriter, r *http.Request) {
-	userID := r.Context().Value("userID").(string)
-
-	tasks, err := h.taskService.GetAllByUserID(r.Context(), userID)
-	if err != nil {
-		h.logger.Error("Failed to get tasks", "error", err)
-		http.Error(w, "Failed to get tasks", http.StatusInternalServerError)
-		return
-	}
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(tasks)
-}
-
 func (h *Router) handleGetTask(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	userID := r.Context().Value("userID").(string)
