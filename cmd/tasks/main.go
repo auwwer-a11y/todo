@@ -19,6 +19,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"github.com/pressly/goose/v3"
 )
 
 func main() {
@@ -47,6 +48,10 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	if err := goose.Up(pgClient.DB, "migrations/tasks"); err != nil {
+		panic(err)
+	}
+	
 	taskRepo := postgres.NewTaskRepo(pgClient)
 
 	// initialize services

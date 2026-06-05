@@ -15,6 +15,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"github.com/pressly/goose/v3"
 )
 
 func main() {
@@ -30,6 +31,9 @@ func main() {
 		cfg.AuthPostgres.User, cfg.AuthPostgres.Password, cfg.AuthPostgres.Host, cfg.AuthPostgres.Port, cfg.AuthPostgres.DBName)
 	pgClient, err := sqlx.Connect("postgres", pgConn)
 	if err != nil {
+		panic(err)
+	}
+	if err := goose.Up(pgClient.DB, "migrations/auth"); err != nil {
 		panic(err)
 	}
 	userRepo := postgres.NewUserRepo(pgClient)
