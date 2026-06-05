@@ -12,16 +12,16 @@ import (
 )
 
 type AuthRouter struct {
-	userService *service.UserService
-	logger      *slog.Logger
-	jwtSecret   string
+	Router
 }
 
 func NewAuthRouter(userService *service.UserService, logger *slog.Logger, jwtSecret string) http.Handler {
 	h := &AuthRouter{
-		userService: userService,
-		logger: logger,
-		jwtSecret: jwtSecret,
+		Router: Router{
+			userService: userService,
+			logger: logger,
+			jwtSecret: jwtSecret,
+		},
 	}
 
 	r := chi.NewRouter()

@@ -10,18 +10,18 @@ import (
 )
 
 type TasksRouter struct {
-	taskService *service.TaskService
-	noteService *service.NoteService
-	logger      *slog.Logger
+	Router
 	authServiceURL string
 }
 
 func NewTasksRouter(taskService *service.TaskService, noteService *service.NoteService, logger *slog.Logger, authServiceURL string) http.Handler {
 	h := &TasksRouter{
-		taskService: taskService,
-		noteService: noteService,
-		logger: logger,
-		authServiceURL: authServiceURL, 
+		Router: Router{
+			taskService: taskService,
+			noteService: noteService,
+			logger: logger,
+		},
+		authServiceURL: authServiceURL,
 	}
 
 	r := chi.NewRouter()
