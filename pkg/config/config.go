@@ -13,6 +13,7 @@ type AppConfig struct {
 	Port string
 	JWTSecret string
 	JWTTL string
+	AuthServiceURL string
 }
 
 type PostgresConfig struct {
@@ -57,6 +58,7 @@ func LoadConfig() (*Config, error) {
 			Port: os.Getenv("APP_PORT"),
 			JWTSecret: os.Getenv("JWT_SECRET"),
 			JWTTL: os.Getenv("JWT_TTL"),
+			AuthServiceURL: os.Getenv("AUTH_SERVICE_URL"),
 		},
 		Postgres: PostgresConfig{
 			Host: os.Getenv("POSTGRES_HOST"),
