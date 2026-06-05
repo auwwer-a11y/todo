@@ -1,0 +1,13 @@
+FROM golang:1.22-alpine AS builder
+WORKDIR /tasks
+ENV GOTOOLCHAIN=local
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+RUN CGO_ENABLED=0 GOOS=linux go build -o tasks cmd/tasks/main.go
+
+FROM alpine:3.19
+WORKDIR /tasks
+COPY --from=builder /tasks/tasks .
+EXPOSE 8082
+CMD ["./tasks"]

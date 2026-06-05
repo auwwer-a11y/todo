@@ -8,13 +8,42 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-  
-  app:
-    build: .
+
+  auth-service:
+    build: 
+      context: .
+      dockerfile: Dockerfile.auth
+      args:
+        SERVICE: auth
+    container_name: auth-service
+    restart: unless-stopped
     ports:
-      - "8080:8080"
+      - "8081:8081"
     env_file: .env
     depends_on:
+      postgres:
+        condition: service_healthy
+      mongo:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  tasks-service:
+    build: 
+      context: .
+      dockerfile: Dockerfile.tasks
+      args:
+        SERVICE: tasks
+    container_name: tasks-service
+    restart: unless-stopped
+    ports:
+      - "8082:8082"
+    env_file: .env
+    depends_on:
+      auth-service:
+        condition: service_started
       postgres:
         condition: service_healthy
       mongo:
