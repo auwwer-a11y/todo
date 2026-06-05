@@ -8,15 +8,44 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-  
-  app:
-    build: .
+
+  auth-service:
+    build: 
+      context: .
+      dockerfile: Dockerfile.auth
+      args:
+        SERVICE: auth
+    container_name: auth-service
+    restart: unless-stopped
     ports:
-      - "8080:8080"
+      - "8081:8081"
     env_file: .env
+    environment:
+      APP_PORT: 8081
     depends_on:
-      postgres:
+      postgres-auth:
         condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  tasks-service:
+    build: 
+      context: .
+      dockerfile: Dockerfile.tasks
+      args:
+        SERVICE: tasks
+    container_name: tasks-service
+    restart: unless-stopped
+    ports:
+      - "8082:8082"
+    env_file: .env
+    environment:
+      APP_PORT: 8082
+    depends_on:
+      postgres-tasks:
+        condition: service_healthy
+      auth-service:
+        condition: service_started
       mongo:
         condition: service_healthy
       kafka:
@@ -24,23 +53,38 @@ services:
       redis:
         condition: service_healthy
 
-  postgres:
+  postgres-auth:
     image: postgres:15
-    container_name: postgres
+    container_name: postgres-auth
+    environment:
+      POSTGRES_USER: ${AUTH_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${AUTH_POSTGRES_PASSWORD}
+      POSTGRES_DB: ${AUTH_POSTGRES_DB}
     restart: unless-stopped
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
-    ports:
-      - "5432:5432"
+      - postgres_auth_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD", "pg_isready", "-U", "todo"]
+      test: ["CMD", "pg_isready", "-U", "auth"]
       interval: 10s
       timeout: 5s
       retries: 5
+
+  postgres-tasks:
+    image: postgres:15
+    container_name: postgres-tasks
+    environment:
+      POSTGRES_USER: ${TASKS_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${TASKS_POSTGRES_PASSWORD}
+      POSTGRES_DB: ${TASKS_POSTGRES_DB}
+    restart: unless-stopped
+    volumes:
+      - postgres_tasks_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "tasks"]
+      interval: 10s
+      timeout: 5s
+      retries: 5  
+      
 
   mongo:
     image: mongo:6
@@ -97,6 +141,7 @@ services:
         condition: service_healthy
 
 volumes:
-  postgres_data:
+  postgres_auth_data:
+  postgres_tasks_data:
   mongo_data:
   kafka_data: 

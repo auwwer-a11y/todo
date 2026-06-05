@@ -13,6 +13,7 @@ type AppConfig struct {
 	Port string
 	JWTSecret string
 	JWTTL string
+	AuthServiceURL string
 }
 
 type PostgresConfig struct {
@@ -45,10 +46,27 @@ type KafkaConfig struct {
 
 type Config struct {
 	App AppConfig
-	Postgres PostgresConfig
 	Mongo MongoConfig
 	Redis RedisConfig
 	Kafka KafkaConfig
+	AuthPostgres AuthPostgresConfig
+	TasksPostgres TasksPostgresConfig
+}
+
+type AuthPostgresConfig struct {
+	Host string
+	Port string
+	User string
+	Password string
+	DBName string
+}
+
+type TasksPostgresConfig struct {
+	Host string
+	Port string
+	User string
+	Password string
+	DBName string
 }
 
 func LoadConfig() (*Config, error) {
@@ -57,14 +75,25 @@ func LoadConfig() (*Config, error) {
 			Port: os.Getenv("APP_PORT"),
 			JWTSecret: os.Getenv("JWT_SECRET"),
 			JWTTL: os.Getenv("JWT_TTL"),
+			AuthServiceURL: os.Getenv("AUTH_SERVICE_URL"),
 		},
-		Postgres: PostgresConfig{
-			Host: os.Getenv("POSTGRES_HOST"),
-			Port: os.Getenv("POSTGRES_PORT"),
-			User: os.Getenv("POSTGRES_USER"),
-			Password: os.Getenv("POSTGRES_PASSWORD"),
-			DBName: os.Getenv("POSTGRES_DB"),
+
+		AuthPostgres: AuthPostgresConfig{
+			Host: os.Getenv("AUTH_POSTGRES_HOST"),
+			Port: os.Getenv("AUTH_POSTGRES_PORT"),
+			User: os.Getenv("AUTH_POSTGRES_USER"),
+			Password: os.Getenv("AUTH_POSTGRES_PASSWORD"),
+			DBName: os.Getenv("AUTH_POSTGRES_DB"),
 		},
+
+		TasksPostgres: TasksPostgresConfig{
+			Host: os.Getenv("TASKS_POSTGRES_HOST"),
+			Port: os.Getenv("TASKS_POSTGRES_PORT"),
+			User: os.Getenv("TASKS_POSTGRES_USER"),
+			Password: os.Getenv("TASKS_POSTGRES_PASSWORD"),
+			DBName: os.Getenv("TASKS_POSTGRES_DB"),
+		},
+
 		Mongo: MongoConfig{
 			Host: os.Getenv("MONGO_HOST"),
 			Port: os.Getenv("MONGO_PORT"),

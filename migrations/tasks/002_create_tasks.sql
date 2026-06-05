@@ -7,8 +7,7 @@ CREATE TABLE tasks (
     deadline TIMESTAMPTZ,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    status TEXT NOT NULL DEFAULT 'pending',
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    status TEXT NOT NULL DEFAULT 'pending'
 );
 
 -- +goose Down
