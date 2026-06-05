@@ -42,7 +42,7 @@ func main() {
 
 	// Initialize PostgreSQL
 	pgConn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
-		cfg.Postgres.User, cfg.Postgres.Password, cfg.Postgres.Host, cfg.Postgres.Port, cfg.Postgres.DBName)
+		cfg.TasksPostgres.User, cfg.TasksPostgres.Password, cfg.TasksPostgres.Host, cfg.TasksPostgres.Port, cfg.TasksPostgres.DBName)
 	pgClient, err := sqlx.Connect("postgres", pgConn)
 	if err != nil {
 		panic(err)
