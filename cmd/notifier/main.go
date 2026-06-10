@@ -36,9 +36,10 @@ func main() {
 	}
 	taskRepo := postgres.NewTaskRepo(pgClient)
 
-	mongoConn := fmt.Sprintf("mongodb://%s:%s@%s:%s/%s",
-		cfg.Mongo.User, cfg.Mongo.Password, cfg.Mongo.Host, cfg.Mongo.Port, cfg.Mongo.DBName)
-	mongoClient, err := mongodriver.Connect(context.Background(), options.Client().ApplyURI(mongoConn))
+	mongoURI := fmt.Sprintf("mongodb://%s:%s",
+    cfg.Mongo.Host, cfg.Mongo.Port)
+
+	mongoClient, err := mongodriver.Connect(context.Background(), options.Client().ApplyURI(mongoURI))
 	if err != nil {
 		panic(err)
 	}
@@ -60,13 +61,15 @@ func main() {
 				continue
 			}
 
-			eventType, _ := event["type"].(string)
+			eventType, _ := event["event_type"].(string)
+			log.Info("Received event", "event_type", eventType)
 			if eventType == "task.status_changed" {
-				taskID, _ := event["task_id"].(string)
-				userID, _ := event["user_id"].(string)
-				status, _ := event["status"].(string)
-				notifierService.HandleStatusChanged(context.Background(), taskID, userID, status)
-			}
+    			payload, _ := event["payload"].(map[string]interface{})
+    			taskID, _ := payload["id"].(string)
+    			userID, _ := payload["user_id"].(string)
+    			status, _ := payload["status"].(string)
+    			notifierService.HandleStatusChanged(context.Background(), taskID, userID, status)
+}
     	}
 	}()
 
@@ -91,7 +94,7 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	mongoClient.Disconnect(context.Background())
+	mongoClient.Disconnect(ctx)
 	pgClient.Close()
 	consumer.Close()
 }

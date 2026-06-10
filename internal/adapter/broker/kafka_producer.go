@@ -10,6 +10,11 @@ type KafkaProducer struct {
 	writer *kafka.Writer
 }
 
+type Event struct {
+    EventType string      `json:"event_type"`
+    Payload   interface{} `json:"payload"`
+}
+
 func NewKafkaProducer(brokers []string, topic string) *KafkaProducer {
 	return &KafkaProducer{
 		writer: &kafka.Writer{
@@ -21,7 +26,10 @@ func NewKafkaProducer(brokers []string, topic string) *KafkaProducer {
 }
 
 func (p *KafkaProducer) Publish(ctx context.Context, eventType string, payload interface{}) error {
-	data, err := json.Marshal(payload)
+	data, err := json.Marshal(Event{
+		EventType: eventType,
+		Payload: payload,
+	})
 	if err != nil {
 		return err
 	}

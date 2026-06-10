@@ -45,6 +45,8 @@ func (s *NotifierService) HandleStatusChanged(ctx context.Context, taskID, userI
 
 	if err := s.notificationRepo.Create(ctx, notification); err != nil {
 		s.logger.Error("Failed to create notification", "error", err)
+	} else {
+		s.logger.Info("Notification created", "taskID", taskID, "userID", userID)
 	}
 	return nil
 }

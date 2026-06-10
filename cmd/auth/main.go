@@ -33,6 +33,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	goose.SetDialect("postgres")
 	if err := goose.Up(pgClient.DB, "migrations/auth"); err != nil {
 		panic(err)
 	}
