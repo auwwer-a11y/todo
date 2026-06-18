@@ -20,6 +20,8 @@ import (
 	"os/signal"
 	"syscall"
 	"github.com/pressly/goose/v3"
+	"github.com/redis/go-redis/v9"
+	redisadapter "github.com/auwwer-a11y/todo/internal/adapter/redis"
 )
 
 func main() {
@@ -53,11 +55,17 @@ func main() {
 		panic(err)
 	}
 	
-	taskRepo := postgres.NewTaskRepo(pgClient)
+	taskRepo := postgres.NewTaskRepo(pgClient)	
+
+	// Initialize Redis
+	redisClient := redis.NewClient(&redis.Options{
+		Addr: fmt.Sprintf("%s:%s", cfg.Redis.Host, cfg.Redis.Port),
+	})
+	cacheRepo := redisadapter.NewCache(redisClient)
 
 	// initialize services
 	kafkaProducer := brokeradapter.NewKafkaProducer(cfg.Kafka.Brokers, cfg.Kafka.Topic)
-	taskService := service.NewTaskService(taskRepo, noteRepo, kafkaProducer, log)
+	taskService := service.NewTaskService(taskRepo, noteRepo, kafkaProducer, log, cacheRepo)
 	noteService := service.NewNoteService(noteRepo, taskRepo, log)
 
 	router := handler.NewTasksRouter(taskService, noteService, log, cfg.App.AuthServiceURL)
@@ -84,5 +92,6 @@ func main() {
 	srv.Shutdown(ctx)
 
 	mongoClient.Disconnect(context.Background())
+	redisClient.Close()
 	pgClient.Close()
 }
