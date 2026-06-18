@@ -4,6 +4,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"context"
 	"github.com/auwwer-a11y/todo/internal/domain"
+	"time"
 )
 
 type TaskRepo struct {
@@ -63,4 +64,14 @@ func (r *TaskRepo) Delete(ctx context.Context, id string) error {
 		WHERE id = $1
 	`, id)
 	return err
+}
+
+func (r *TaskRepo) GetTasksWithDeadlineBefore(ctx context.Context, deadline time.Time) ([]*domain.Task, error) {
+	var tasks []*domain.Task
+	err := r.db.SelectContext(ctx, &tasks, `
+		SELECT * FROM tasks WHERE deadline < $1 AND status != 'completed'`, deadline)
+	if err != nil {
+		return nil, err
+	}
+	return tasks, nil
 }

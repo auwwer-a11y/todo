@@ -31,9 +31,9 @@ func main() {
 	log := logger.New()
 
 	// Initalize MongoDB
-	mongoURI := fmt.Sprintf("mongodb://%s:%s@%s:%s",
-		cfg.Mongo.User, cfg.Mongo.Password, cfg.Mongo.Host, cfg.Mongo.Port)
-	
+	mongoURI := fmt.Sprintf("mongodb://%s:%s",
+    cfg.Mongo.Host, cfg.Mongo.Port)
+
 	mongoClient, err := mongodriver.Connect(context.Background(), options.Client().ApplyURI(mongoURI))
 	if err != nil {
 		panic(err)
@@ -48,6 +48,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	goose.SetDialect("postgres")
 	if err := goose.Up(pgClient.DB, "migrations/tasks"); err != nil {
 		panic(err)
 	}

@@ -9,5 +9,6 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o tasks cmd/tasks/main.go
 FROM alpine:3.19
 WORKDIR /tasks
 COPY --from=builder /tasks/tasks .
+COPY --from=builder /tasks/migrations ./migrations
 EXPOSE 8082
 CMD ["./tasks"]

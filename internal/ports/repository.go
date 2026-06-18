@@ -3,6 +3,7 @@ package ports
 import (
 	"context"
 	"github.com/auwwer-a11y/todo/internal/domain"
+	"time"
 )
 
 type UserRepository interface {
@@ -17,10 +18,15 @@ type TaskRepository interface {
 	GetAllByUserID(ctx context.Context, userID string) ([]*domain.Task, error)
 	Update(ctx context.Context, task *domain.Task) error
 	Delete(ctx context.Context, id string) error
+	GetTasksWithDeadlineBefore(ctx context.Context, deadline time.Time) ([]*domain.Task, error)
 }
 
 type NoteRepository interface {
 	Create(ctx context.Context, note *domain.Note) error
 	GetAllByTaskID(ctx context.Context, taskID string) ([]*domain.Note, error)
 	Delete(ctx context.Context, id string) error
+}
+
+type NotificationRepository interface {
+	Create(ctx context.Context, notification *domain.Notification) error
 }

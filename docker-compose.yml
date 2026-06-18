@@ -53,6 +53,27 @@ services:
       redis:
         condition: service_healthy
 
+  notifier-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.notifier
+      args:
+        SERVICE: notifier
+    container_name: notifier-service
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      APP_PORT: 8083
+    depends_on:
+      auth-service:
+        condition: service_started
+      tasks-service:
+        condition: service_started
+      mongo:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy   
+
   postgres-auth:
     image: postgres:15
     container_name: postgres-auth
